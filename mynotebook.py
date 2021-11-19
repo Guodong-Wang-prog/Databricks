@@ -182,3 +182,11 @@ pdf = pd.DataFrame({'A':range(1000)})
 # COMMAND ----------
 
 pdf.apply
+
+# COMMAND ----------
+
+# MAGIC %md # Version control
+
+# COMMAND ----------
+
+# MAGIC %md this is a test
