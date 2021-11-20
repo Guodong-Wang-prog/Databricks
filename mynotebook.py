@@ -43,7 +43,15 @@
 
 # COMMAND ----------
 
+# MAGIC %sh mkdir /dbfs/tmp2
+
+# COMMAND ----------
+
 # MAGIC %fs mkdirs /tmp/my_cloud_dir
+
+# COMMAND ----------
+
+# MAGIC %fs mv /test_dbfs.txt /tmp2
 
 # COMMAND ----------
 
@@ -190,3 +198,26 @@ pdf.apply
 # COMMAND ----------
 
 # MAGIC %md this is a branch test
+
+# COMMAND ----------
+
+# MAGIC %md #Mount an Azure blob storage
+
+# COMMAND ----------
+
+dbutils.fs.mount(
+  source = "wasbs://dbs-mount@dbsmount.blob.core.windows.net",
+  mount_point = "/mnt/mounttest",
+  extra_configs = {"fs.azure.account.key.dbsmount.blob.core.windows.net":dbutils.secrets.get(scope = "databricks-scope", key = "mykey")})
+
+# COMMAND ----------
+
+df = spark.read.text("/mnt/mounttest/Az Region.txt")
+
+# COMMAND ----------
+
+df.head(5)
+
+# COMMAND ----------
+
+# MAGIC %fs ls /mnt/mounttest/
