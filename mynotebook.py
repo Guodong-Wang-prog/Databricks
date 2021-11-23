@@ -400,7 +400,7 @@ with open ("/dbfs/cluster-logs/1123-073853-udks5dap/init_scripts/1123-073853-udk
 
 # COMMAND ----------
 
-# MAGIC %md Root cause为：“cp: -r not specified; omitting directory '/dbfs/hive_metastore_jar'，shell脚本写错了，应该是cp -r ... ...，不能遗漏-r
+# MAGIC %md Root cause为：“cp: -r not specified; omitting directory '/dbfs/hive_metastore_jar'，shell脚本写错了，应该是cp -r ... ...，r待变recursive复制，不能遗漏-r
 # MAGIC ”
 
 # COMMAND ----------
