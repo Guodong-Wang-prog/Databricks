@@ -335,3 +335,100 @@ display(dbutils.fs.ls("dbfs:/databricks/scripts/postgresql-install.sh"))
 with open("/dbfs/cluster-logs/1111-133045-rx27q9ov/init_scripts/1111-133045-rx27q9ov_10_139_64_6/20211120_092728_00_postgresql-install.sh.stderr.log", "r") as f_read:
   for line in f_read:
     print(line)
+
+# COMMAND ----------
+
+# MAGIC %md #External Hive Metastore
+
+# COMMAND ----------
+
+# MAGIC %sh
+# MAGIC nc -vz mysqlserver13501649220.database.windows.net 1433
+
+# COMMAND ----------
+
+# MAGIC %scala
+# MAGIC import com.typesafe.config.ConfigFactory
+# MAGIC val path = ConfigFactory.load().getString("java.io.tmpdir")
+# MAGIC 
+# MAGIC println(s"\nHive JARs are downloaded to the path: $path \n")
+
+# COMMAND ----------
+
+# MAGIC %sh cp /local_disk0/tmp /dbfs/hive_metastore_jar
+
+# COMMAND ----------
+
+# MAGIC %fs ls /hive_metastore_jar
+
+# COMMAND ----------
+
+# MAGIC %fs ls /cluster-logs/1111-133045-rx27q9ov/init_scripts/
+
+# COMMAND ----------
+
+#Create a script named postgresql-install.sh in that directory:
+dbutils.fs.put("/databricks/scripts/copy_hive_meta_jar.sh","""
+#!/bin/bash
+%sh cp /dbfs/hive_metastore_jar /databricks/hive_metastore_jars/""", True)
+
+# COMMAND ----------
+
+# MAGIC %fs ls /databricks/scripts/
+
+# COMMAND ----------
+
+# MAGIC %md ## Init Script执行错误，查找init_log排故
+
+# COMMAND ----------
+
+# MAGIC %fs ls /cluster-logs/1123-073853-udks5dap/init_scripts/
+
+# COMMAND ----------
+
+# MAGIC %fs ls /cluster-logs/1123-073853-udks5dap/init_scripts/1123-073853-udks5dap_10_139_64_7/
+
+# COMMAND ----------
+
+# MAGIC %md ## Root Cause for the init script failure
+
+# COMMAND ----------
+
+with open ("/dbfs/cluster-logs/1123-073853-udks5dap/init_scripts/1123-073853-udks5dap_10_139_64_7/20211123_081615_00_copy_hive_meta_jar.sh.stderr.log", "r") as f_read:
+    for line in f_read:
+        print(line)
+
+# COMMAND ----------
+
+# MAGIC %md Root cause为：“cp: -r not specified; omitting directory '/dbfs/hive_metastore_jar'，shell脚本写错了，应该是cp -r ... ...，不能遗漏-r
+# MAGIC ”
+
+# COMMAND ----------
+
+# MAGIC %fs rm -r /databricks/scripts/copy_hive_meta_jar.sh
+
+# COMMAND ----------
+
+# MAGIC %fs ls /databricks/scripts
+
+# COMMAND ----------
+
+# MAGIC %md ##Solution
+
+# COMMAND ----------
+
+#Create a script named postgresql-install.sh in that directory:
+dbutils.fs.put("/databricks/scripts/copy_hive_meta_jar.sh","""
+#!/bin/bash
+cp -r /dbfs/hive_metastore_jar /databricks/hive_metastore_jars/""", True)
+
+# COMMAND ----------
+
+# MAGIC %fs ls /databricks/scripts/
+
+# COMMAND ----------
+
+# MAGIC %md 然后再重新跑一边init script即可，发现Cluster可以成功Running了！
+
+# COMMAND ----------
+
