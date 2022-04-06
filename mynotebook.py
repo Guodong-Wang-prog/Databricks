@@ -432,3 +432,5 @@ cp -r /dbfs/hive_metastore_jar /databricks/hive_metastore_jars/""", True)
 
 # COMMAND ----------
 
+# MAGIC %scala
+# MAGIC dbutils.widgets.help("text")
