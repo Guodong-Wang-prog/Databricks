@@ -11,7 +11,7 @@ trigger:
 # image in the Azure Pipeline agent pool. See
 # https://learn.microsoft.com/azure/devops/pipelines/agents/hosted#software
 pool:
-  vmImage: ubuntu-18.04
+  vmImage: ubuntu-20.04
 
 # Install Python. The version of Python must match the version on the
 # Azure Databricks cluster. This pipeline assumes that you are using
